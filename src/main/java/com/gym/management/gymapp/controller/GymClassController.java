@@ -1,5 +1,6 @@
 package com.gym.management.gymapp.controller;
 
+import com.gym.management.gymapp.exceptions.GymClassNullPointerException;
 import com.gym.management.gymapp.exceptions.GymClassServiceException;
 import com.gym.management.gymapp.model.GymClass;
 import com.gym.management.gymapp.service.GymClassService;
@@ -20,7 +21,7 @@ public class GymClassController {
         try {
             gymClasses = gymClassService.getAllClasses();
         } catch (GymClassServiceException e) {
-            throw new GymClassServiceException("Service Exception: " + e);
+            throw new GymClassServiceException("Gym Class Service Exception: " + e);
         }
         return gymClasses;
     }
@@ -29,10 +30,13 @@ public class GymClassController {
     @ResponseBody
     public GymClass createClasses(@RequestBody GymClass gymClass) {
         try {
+            if (gymClass.getName() == null || gymClass.getStart_date() == null || gymClass.getEnd_date() == null)
+                throw new GymClassNullPointerException("Json request has invalid class name or start/end dates. Check those fields.");
+
             gymClassService.setNumOfClasses(gymClass);
             gymClassService.save(gymClass);
         } catch (GymClassServiceException e) {
-            throw new GymClassServiceException("Service Exception: " + e);
+            throw new GymClassServiceException("Gym Class Service Exception: " + e);
         }
         return gymClass;
 

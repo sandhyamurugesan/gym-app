@@ -1,5 +1,6 @@
 package com.gym.management.gymapp.controller;
 
+import com.gym.management.gymapp.exceptions.BookingNullPointerException;
 import com.gym.management.gymapp.exceptions.BookingServiceException;
 import com.gym.management.gymapp.exceptions.BookingsNotFound;
 import com.gym.management.gymapp.exceptions.GymClassesNotPresent;
@@ -32,7 +33,7 @@ public class BookingController {
             if (bookings.isEmpty())
                 throw new BookingsNotFound("No Bookings present for this class");
         } catch (BookingServiceException e) {
-            throw new BookingServiceException("Service Exception: " + e);
+            throw new BookingServiceException("Booking Service Exception: " + e);
         }
         return bookings;
     }
@@ -42,6 +43,9 @@ public class BookingController {
     @ResponseBody
     public Booking createBookings(@RequestBody Booking booking) {
         try {
+            if (booking.getCustomer_name() == null || booking.getClass_date() == null)
+                throw new BookingNullPointerException("Json request has invalid customer_name or class date. Check those fields.");
+
             GymClass gymClass = gymClassService.getAllClasses().stream().filter(gc -> {
                 return DateUtils.between(booking.getClass_date(), gc.getStart_date(), gc.getEnd_date());
             }).findFirst().orElseThrow(() -> new GymClassesNotPresent("No classes present for the given booking date"));
@@ -49,7 +53,7 @@ public class BookingController {
             booking.setGymClass(gymClass);
             bookingService.save(booking);
         } catch (BookingServiceException e) {
-            throw new BookingServiceException("Service Exception: " + e);
+            throw new BookingServiceException("Booking Service Exception: " + e);
         }
         return booking;
 

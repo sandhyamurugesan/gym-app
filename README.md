@@ -78,7 +78,7 @@ Sample Output data:
 }
 
 ```
-
+![img.png](img.png)
 ### <u>Bookings API:</u>
 
 POST:
@@ -93,19 +93,13 @@ Sample Output data:
 
 ```
 {
-    "booking_id": 2,
+    "booking_id": 3,
     "customer_name": "san",
-    "class_date": "09-07-2021",
-    "gymClass": {
-        "name": "Yoga",
-        "start_date": "01-07-2021",
-        "end_date": "10-07-2021",
-        "capacity": 40,
-        "num_classes": 10
-    }
+    "class_date": "09-07-2021"
 }
 
 ```
+![img_1.png](img_1.png)
 
 # What can be improved here:
 

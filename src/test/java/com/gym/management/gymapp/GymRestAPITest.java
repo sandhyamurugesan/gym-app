@@ -1,6 +1,7 @@
 package com.gym.management.gymapp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gym.management.gymapp.exceptions.GymClassServiceException;
 import com.gym.management.gymapp.model.GymClass;
 import com.gym.management.gymapp.service.GymClassService;
 import org.assertj.core.util.Lists;
@@ -18,8 +19,7 @@ import java.sql.Date;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
-        value = "Mock",
+        value = "Gym class Rest API test",
         classes = GymAppApplication.class)
 @TestPropertySource(
         locations = "classpath:application.properties")
@@ -72,6 +72,32 @@ public class GymRestAPITest {
         //when
         this.mockMvc.perform(post("/classes").content(asJsonString(gymClassYoga)).contentType(jsonMimeType)).andDo(print()).andExpect(status().isOk())
                 .andExpect(jsonPath("$.class_id", is(1)));
+
+    }
+
+    @Test
+    public void givenGymClasses_whenCreateClass_then400BadRequest() throws Exception {
+        String jsonMimeType = "application/json";
+        //given
+        GymClass gymClassYoga = new GymClass(); //empty gym class object
+        doNothing().when(gymClassService).save(gymClassYoga);
+
+        //when
+        this.mockMvc.perform(post("/classes").content(asJsonString(gymClassYoga)).contentType(jsonMimeType)).andDo(print()).andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    public void callGetClasses_whenGetClass_then500InternalServerError() throws Exception {
+        when(gymClassService.getAllClasses()).thenThrow(new GymClassServiceException("error"));
+        this.mockMvc.perform(get("/classes")).andDo(print()).andExpect(status().isInternalServerError());
+
+    }
+
+    @Test
+    public void givenInvalidRestURL_then404NotFound() throws Exception {
+        //invaid url
+        this.mockMvc.perform(get("/classes/2")).andDo(print()).andExpect(status().isNotFound());
 
     }
 
